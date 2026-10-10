@@ -1,0 +1,1 @@
+export async function verifyNetwork(connection,network){const hash=await connection.getGenesisHash();const valid=network==='mainnet-beta'?hash==='5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d':network==='devnet'&&hash.slice(0,32)==='EtWTRABZaYq6iMfeYKouRu166VU2xqa1';if(!valid)throw Error('RPC network does not match your selected network. Check Settings.');}
