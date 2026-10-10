@@ -32,3 +32,14 @@ BNB uses chain IDs 56 and 97, verified against eth_chainId. Transactions use pen
 - https://docs.bnbchain.org/bnb-smart-chain/developers/json_rpc/json-rpc-endpoint/
 
 Trust Wallet Core is maintained by Trust Wallet. Tiger Wallet is an independent implementation, not a Trust Wallet product or endorsement. Preserve dependency licenses and notices when distributing.
+
+## Multichain and fee collection
+Solana plus Ethereum, BNB, Polygon, Base, Arbitrum, Optimism and Avalanche C-Chain use a single locally encrypted recovery phrase. BNB Testnet and Ethereum Sepolia are also available. EVM tokens are imported by contract address. Network switching does not bridge assets.
+
+The wallet fee is 30 basis points (0.3%), added to the recipient amount and rounded upward to the smallest asset unit. Holding and receiving have no wallet fee. Gas and account rent are separate. Until collection is configured, transfers explicitly show that wallet fees are not activated.
+
+In Settings, create the admin collection wallet locally, verify its recovery backup, and download both its encrypted backup and public `fee-config.json`. Never upload its phrase or encrypted vault to the repository. The admin wallet has no control over customer keys. Restore its encrypted backup in a separate browser profile to manage revenue. The local generator does not grant website administrative access.
+
+Replace the root public `fee-config.json` with the downloaded configuration. For Solana, the sender transfer and fee are instructions in one atomic transaction, including any required associated token accounts. For EVM, deploy `contracts/TigerFeeRouter.sol` with the admin EVM address as constructor argument on each supported chain and populate `routers` by network key. Router collector and 30-basis-point getters are checked before signing. When EVM collection is configured but no router is deployed for a chain, fee-bearing transfers are blocked rather than sent without the fee.
+
+The immutable EVM router atomically transfers the recipient amount and fee. ERC20 transfers require a separate exact-allowance approval, with its gas estimate and explicit signature; after approval confirmation, prepare the transfer again. Tokens requiring zero-reset approval or with transfer taxes are not supported in this flow. No contracts have been deployed by this build. The router source is compiled with Solidity 0.8.30 (Paris EVM target); its ABI and deployment bytecode are included in contracts/TigerFeeRouter.artifact.json. Independent security review and testnet execution remain required before activation. The unit tests verify arithmetic, ABI data and signing; they do not constitute contract execution or a security audit.
